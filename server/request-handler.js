@@ -29,17 +29,16 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
-
+  response._data = results;
   // The outgoing status.
   var statusCode;
   if (request.method === 'GET') {
     statusCode = 200;
   } else if (request.method === 'POST') {
     statusCode = 201;
+    response._data.results.unshift(request._postData);
   } 
-  console.log('statusCode: ',statusCode);
 
 
   // See the note below about CORS headers.
@@ -60,7 +59,6 @@ var requestHandler = function(request, response) {
   // response.end() will be the body of the response - i.e. what shows
   // up in the browser.
   //
-  console.log("response: ", response);
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
   response.end(JSON.stringify(results));
