@@ -12,7 +12,9 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
-var results = {results: []};
+var data = {
+  results: []
+};
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -30,17 +32,28 @@ var requestHandler = function(request, response) {
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
 
-  response._data = results;
+  response._data = data;
   // The outgoing status.
   var statusCode;
   if (request.method === 'GET') {
     statusCode = 200;
+    // console.log("RESPOSNE DDATATA!" , response._data);
   } else if (request.method === 'POST') {
     statusCode = 201;
-    response._data.results.unshift(request._postData);
-  } 
+    // console.log("request", request,"request._postData:",request._postData);
+    //data.results.unshift(request._postData);
+    request.on('data', function(d) {
+      console.log(JSON.parse(d));
+      data.results.unshift(JSON.parse(d));
+    });
+  } else {
+    statusCode = 404;
+  }
 
 
+  if (response._ended === true) {
+    statusCode = 404;
+  }
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 
@@ -61,7 +74,8 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end(JSON.stringify(results));
+  // console.log('response._data',response._data)
+  response.end(JSON.stringify(data));
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
